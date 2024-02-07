@@ -6,6 +6,7 @@ class BottleMachine {
   #caps = 0;
   #empties = 0;
   #totalBottles = 0;
+  #price = 2; // price per bottle
 
   #purchasedBottles = 0; // bottles purchased
   #earnedFromEmpties = 0; // bottles earned from recycling
@@ -15,9 +16,14 @@ class BottleMachine {
     this.#cash += cash;
   }
 
+  setPrice(price) {
+    this.#price = price;
+  }
+
+
   buyBottles() {
-    const numBottles = Math.floor(this.#cash / 2);
-    this.#cash -= numBottles * 2;
+    const numBottles = Math.floor(this.#cash / this.#price);
+    this.#cash -= numBottles * this.#price;
     this.#bottles += numBottles;
     this.#purchasedBottles += numBottles;
 
@@ -44,9 +50,9 @@ class BottleMachine {
   }
 
   #recycleEmpties() {
-    const numBottles = Math.floor(this.#empties / 2);
+    const numBottles = Math.floor(this.#empties / this.#price);
     this.#earnedFromEmpties += numBottles;
-    this.#empties -= numBottles * 2;
+    this.#empties -= numBottles * this.#price;
     this.#bottles += numBottles;
   }
 
@@ -54,11 +60,11 @@ class BottleMachine {
     this.depositCash(cash);
 
     this.buyBottles();
-    //console.log("init purchase", this.toString());
+    //"init purchase", this.toString());
     while (this.#bottles > 0) {
       this.consumeBottles();
       this.recycle();
-      //console.log("trip", this.toString());
+      //"trip", this.toString());
     }
     return {
       cash: this.#cash,
@@ -73,7 +79,21 @@ class BottleMachine {
   }
 
   toString() {
-    return `Cash: $${this.#cash}, Bottles: ${this.#bottles}, Caps: ${this.#caps}, Empties: ${this.#empties}, Total Bottles: ${this.#totalBottles}`;
+    const ret = `Total Bottles Acquired: ${result.totalBottles}\n` +
+    "🍾".repeat(20) + "\n" +
+    `Total Earned from Recycling: ${result.earnedFromEmpties + result.earnedFromCaps}\n` +
+    "-".repeat(20) + "\n" +
+    `\tTotal Earned from Empties: ${result.earnedFromEmpties}\n` +
+    `\tTotal Earned from Caps: ${result.earnedFromCaps}\n` +
+    "-".repeat(20) + "\n" +
+    `Remaining Cash: $${result.cash}\n` +
+    `Remaining Empties: ${result.empties}\n` +
+    `Remaining Caps: ${result.caps}\n` +
+    "🍾".repeat(20) + "\n";
+
+
+
+    return ret;
   }
 }
 
@@ -89,4 +109,4 @@ if (isNaN(money) || money < 0) {
 const machine = new BottleMachine();
 const result = machine.simulate(money);
 
-console.log(result);
+console.log(machine.toString());
