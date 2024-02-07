@@ -7,6 +7,10 @@ class BottleMachine {
   #empties = 0;
   #totalBottles = 0;
 
+  #purchasedBottles = 0; // bottles purchased
+  #earnedFromEmpties = 0; // bottles earned from recycling
+  #earnedFromCaps = 0; // caps earned from recycling
+
   depositCash(cash) {
     this.#cash += cash;
   }
@@ -15,6 +19,7 @@ class BottleMachine {
     const numBottles = Math.floor(this.#cash / 2);
     this.#cash -= numBottles * 2;
     this.#bottles += numBottles;
+    this.#purchasedBottles += numBottles;
 
   }
 
@@ -33,12 +38,14 @@ class BottleMachine {
 
   #recycleCaps() {
     const numBottles = Math.floor(this.#caps / 4);
+    this.#earnedFromCaps += numBottles;
     this.#caps -= numBottles * 4;
     this.#bottles += numBottles;
   }
 
   #recycleEmpties() {
     const numBottles = Math.floor(this.#empties / 2);
+    this.#earnedFromEmpties += numBottles;
     this.#empties -= numBottles * 2;
     this.#bottles += numBottles;
   }
@@ -47,13 +54,22 @@ class BottleMachine {
     this.depositCash(cash);
 
     this.buyBottles();
-    console.log("init purchase", this.toString());
+    //console.log("init purchase", this.toString());
     while (this.#bottles > 0) {
       this.consumeBottles();
       this.recycle();
       //console.log("trip", this.toString());
     }
-    console.log("final:", this.toString());
+    return {
+      cash: this.#cash,
+      purchasedBottles:this.#purchasedBottles,
+      bottles: this.#bottles,
+      caps: this.#caps,
+      empties: this.#empties,
+      totalBottles: this.#totalBottles,
+      earnedFromEmpties: this.#earnedFromEmpties,
+      earnedFromCaps: this.#earnedFromCaps
+    };
   }
 
   toString() {
@@ -66,7 +82,11 @@ module.exports = BottleMachine;
 
 const money = +process.argv[2];
 
-if (isNaN(money)) {
-  throw new Error("Please provide a number");
+if (isNaN(money) || money < 0) {
+  throw new Error("Please provide an amount of dollars to spend on bottles of pop as an argument");
 }
-console.log("Money:", money);
+
+const machine = new BottleMachine();
+const result = machine.simulate(money);
+
+console.log(result);
